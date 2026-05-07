@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1.0.102"
 solana-client = "3.1.14"
 solana-commitment-config = "3.1.1"
-solana-sdk = "4.0.1"
-solana-system-interface = "3.2.0"
+solana-sdk = "3.0.0"
+solana-system-interface = { version = "3.2.0", features = ["solana-instruction", "bincode"]}
 spl-token-interface = "2.0.0"
+tokio = { version = "1.52.2", features = ["full"] }
