@@ -8,7 +8,11 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use solana_system_interface::instruction::create_account;
-use spl_token_interface::{id as token_program_id, instruction::initialize_mint, state::Mint};
+use spl_associated_token_account_interface::{
+    address::get_associated_token_address, instruction::create_associated_token_account,
+};
+use spl_token_interface::{id as token_program_id, instruction::initialize_mint, state::{Mint, Account}};
+
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -20,8 +24,6 @@ async fn main() -> Result<()> {
     let key_pair = Keypair::new();
 
     let mint = Keypair::new();
-
-    let lamports = LAMPORTS_PER_SOL * 10;
 
     let airdrop_sig = client
         .request_airdrop(&key_pair.pubkey(), LAMPORTS_PER_SOL * 10)
@@ -35,7 +37,7 @@ async fn main() -> Result<()> {
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
     }
 
-        let mint_rent = client
+    let mint_rent = client
         .get_minimum_balance_for_rent_exemption(Mint::LEN)
         .await?;
 
@@ -66,10 +68,36 @@ async fn main() -> Result<()> {
     let transaction_signature = client.send_and_confirm_transaction(&transaction).await?;
     let mint_account = client.get_account(&mint.pubkey()).await?;
     let mint_data = Mint::unpack(&mint_account.data)?;
+    let latest_blockhash = client.get_latest_blockhash().await?;
+
+    let transaction_ata = Transaction::new_signed_with_payer(
+        &[create_associated_token_account(
+            &key_pair.pubkey(),
+            &key_pair.pubkey(),
+            &mint.pubkey(),
+            &token_program_id(),
+        )],
+        Some(&key_pair.pubkey()),
+        &[&key_pair],
+        latest_blockhash,
+    );
+
+    let transaction_signature_ata = client
+        .send_and_confirm_transaction(&transaction_ata)
+        .await?;
+
+    let ata_token_account = get_associated_token_address(&key_pair.pubkey(), &mint.pubkey());
+
+    let token_account = client.get_account(&ata_token_account).await?;
+
+    let token_data = Account::unpack(&token_account.data)?;
 
     println!("Mint Address: {}", mint.pubkey());
     println!("Mint Account: {:#?}", mint_data);
     println!("\nTransaction Signature: {}", transaction_signature);
+    println!("\nAssociated Token Account Address: {}", ata_token_account);
+    println!("Associated Token Account: {:#?}", token_data);
+    println!("\nTransaction Signature ATA: {}", transaction_signature_ata);
 
     Ok(())
 }
