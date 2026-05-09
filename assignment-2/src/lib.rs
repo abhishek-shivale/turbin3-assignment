@@ -23,17 +23,17 @@ mod tests {
 pub async fn create_key_pair_airdrop_sol(client: &RpcClient) -> Result<Keypair> {
     let key_pair = Keypair::new();
 
-    let airdrop_sig = client
-        .request_airdrop(&key_pair.pubkey(), LAMPORTS_PER_SOL * 10)
-        .await?;
-
-    loop {
-        let confirmed = client.confirm_transaction(&airdrop_sig).await?;
-        if confirmed {
-            break;
-        }
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-    }
-
+    // let airdrop_sig = client
+    //     .request_airdrop(&key_pair.pubkey(), LAMPORTS_PER_SOL * 10)
+    //     .await?;
+    //
+    // loop {
+    //     let confirmed = client.confirm_transaction(&airdrop_sig).await?;
+    //     if confirmed {
+    //         break;
+    //     }
+    //     tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+    // }
+    //
     Ok(key_pair)
 }
