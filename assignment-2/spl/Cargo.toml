@@ -9,7 +9,7 @@ mpl-token-metadata = "5.1.1"
 solana-client = "2.1.21"
 solana-commitment-config = "2.1.21"
 solana-sdk = "2.1.21"
-solana-system-interface = "1.0.0"          # no features needed
+solana-system-interface = "1.0.0"        
 spl-associated-token-account-interface = "1.0.0"
 spl-token-interface = "1.0.0"
 tokio = { version = "1.52.2", features = ["full"] }
