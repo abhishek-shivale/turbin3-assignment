@@ -13,8 +13,8 @@ use spl_associated_token_account_interface::{
 };
 use spl_token_interface::{
     id as token_program_id,
-    instruction::{initialize_mint, mint_to},
-    state::Mint,
+    instruction::{initialize_mint, mint_to, transfer_checked},
+     state::{Account, Mint},
 };
 
 #[tokio::main]
@@ -34,7 +34,9 @@ async fn main() -> Result<()> {
 
     let latest_blockhash = client.get_latest_blockhash().await?;
     let recipients = assignment_2::create_key_pair_airdrop_sol(&client).await?;
-    let ata_token_account = get_associated_token_address(&key_pair.pubkey(), &mint.pubkey());
+    let source_token_address  = get_associated_token_address(&key_pair.pubkey(), &mint.pubkey());
+    let destination_token_address =
+        get_associated_token_address(&recipients.pubkey(), &mint.pubkey());
 
     // mint token account - its token account where metadata of token lives
 
@@ -69,7 +71,7 @@ async fn main() -> Result<()> {
             mint_to(
                 &token_program_id(),
                 &mint.pubkey(),
-                &ata_token_account,
+                &source_token_address,
                 &key_pair.pubkey(),
                 &[],
                 1_000_000,
@@ -83,6 +85,40 @@ async fn main() -> Result<()> {
     let transaction_signature = client
         .send_and_confirm_transaction(&setup_transaction)
         .await?;
+
+    let transfer_amount = 25;
+    let transaction = Transaction::new_signed_with_payer(
+        &[transfer_checked(
+            &token_program_id(),
+            &source_token_address,
+            &mint.pubkey(),
+            &destination_token_address,
+            &key_pair.pubkey(),
+            &[],
+            transfer_amount,
+            3,
+        )?],
+        Some(&key_pair.pubkey()),
+        &[&key_pair],
+        latest_blockhash,
+    );
+
+    	
+    let transaction_signature = client.send_and_confirm_transaction(&transaction).await?;
+    let source_token_account = client.get_account(&source_token_address).await?;
+    let source_token_data = Account::unpack(&source_token_account.data)?;
+    let destination_token_account = client.get_account(&destination_token_address).await?;
+    let destination_token_data = Account::unpack(&destination_token_account.data)?;
+
+    println!("Mint Address: {}", mint.pubkey());
+    println!("\nSource Token Account Address: {}", source_token_address);
+    println!("Source Token Account: {:#?}", source_token_data);
+    println!(
+        "\nDestination Token Account Address: {}",
+        destination_token_address
+    );
+    println!("Destination Token Account: {:#?}", destination_token_data);
+    println!("\nTransaction Signature: {}", transaction_signature);
 
     println!("transaction signature: {}", transaction_signature);
 
