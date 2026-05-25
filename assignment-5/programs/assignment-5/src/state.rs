@@ -1,6 +1,4 @@
-use anchor_lang::prelude::*;
-
-
+use {anchor_lang::prelude::*};
 
 #[derive(InitSpace)]
 #[account]
@@ -10,5 +8,5 @@ pub struct Config {
     pub mint_a: Pubkey,
     pub mint_b: Pubkey,
     pub locked: bool,
-    pub bump: u8
+    pub bump: u8,
 }
