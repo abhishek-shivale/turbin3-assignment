@@ -15,7 +15,7 @@ declare_id!("6NvaFi7fwTf4nnK5sMJKRHgEKDyD5FZUTsE5cDb1ZQf2");
 pub mod assignment_5 {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn initialize(ctx: Context<Initialize>, seed: u64) -> Result<()> {
+        ctx.accounts.init(seed, false, ctx.bumps.config)
     }
 }
