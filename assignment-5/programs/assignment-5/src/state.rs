@@ -1,12 +1,16 @@
 use {anchor_lang::prelude::*};
 
-#[derive(InitSpace)]
+use anchor_lang::prelude::*;
+
 #[account]
+#[derive(InitSpace)]
 pub struct Config {
-    pub seed: u64,
-    pub owner: Pubkey,
-    pub mint_a: Pubkey,
-    pub mint_b: Pubkey,
-    pub locked: bool,
-    pub bump: u8,
+    pub seed: u64,                 
+    pub authority: Option<Pubkey>, 
+    pub mint_x: Pubkey,           
+    pub mint_y: Pubkey,          
+    pub fee: u16,                  
+    pub locked: bool,              
+    pub config_bump: u8,          
+    pub lp_bump: u8,              
 }
