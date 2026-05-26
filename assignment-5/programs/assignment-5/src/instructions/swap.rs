@@ -108,12 +108,12 @@ impl<'info> Swap<'info> {
     pub fn withdraw_tokens(&mut self, is_x: bool, amount: u64) -> Result<()> {
         let (from, to) = match is_x {
             true => (
-                self.vault_y.to_account_info(),
-                self.user_y.to_account_info(),
-            ),
-            false => (
                 self.vault_x.to_account_info(),
                 self.user_x.to_account_info(),
+            ),
+            false => (
+                self.vault_y.to_account_info(),
+                self.user_y.to_account_info(),
             ),
         };
 
